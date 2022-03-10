@@ -45,26 +45,52 @@ def create_dataset(path_folder):
    
     img_data_array=[]
     class_name=[]
-   
+    train_path = open("train.txt","w")
+    test_path = open("test.txt","w")
+    count_0=0
+    count_1=0
     for path_json in os.listdir(path_folder):
         path_folder1=os.path.join(path_folder,path_json)
         #print("Folder 1", path_folder1)
+        string = ""
+        
         for path_json1 in os.listdir(path_folder1):
             if len(path_json1.split("."))>1:
                 if path_json1=='croped_circle.jpg':
+                    nn=os.path.join(path_folder1,path_json1)
                     #print("path_json1:", path_json1)
                     img=cv2.imread(os.path.join(path_folder1,path_json1))
                     x_input = get_panda_input(img)
                     img_data_array.append(x_input)
+                    
                 if path_json1.split(".")[1] == 'txt':
                     #print("path_json1:", path_json1)
                     f=open(os.path.join(path_folder1,path_json1),"r")
                     x_in = f.readlines()
                     if "khong-co-benh" in x_in:
                         class_name.append(0)
+                        count_0 = count_0+1
+                        mm=0
                     else: 
                         class_name.append(1)
+                        mm=1
+                        count_1=count_1+1
+        string = nn+"\t" + str(mm)+"\n"
+        if mm == 1:
+            if count_0 <= 81:
+                train_path.write(string)
+            else:
+                test_path.write(string)
+        if mm == 0:
+            if count_0 <= 94:
+                train_path.write(string)
+            else:
+                test_path.write(string)
+        
+        #file_path.write(string)
     #print(class_name)
+    print(count_0)
+    print(count_1)
     img_data_array=np.array(img_data_array,np.float32)
     class_name=np.array(class_name)
     return img_data_array,class_name
